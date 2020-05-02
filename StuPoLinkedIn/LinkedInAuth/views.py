@@ -19,7 +19,7 @@ def authorize(request):
     f = open( path )
     private_data = json.load( f )
     client_id = private_data['client_id']
-    client_secret = ['client_secret']
+    client_secret = private_data['client_secret']
     redirect_uri = 'http://127.0.0.1:8000/auth/linkedin'
     auth_base_url = 'https://www.linkedin.com/oauth/v2/authorization'
     parameters = {
