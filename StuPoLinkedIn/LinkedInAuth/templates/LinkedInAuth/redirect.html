@@ -1,13 +1,42 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
+
 <head>
-    <meta charset="UTF-8">
-    <title>Redirect</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>StuPo</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.4.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=ABeeZee">
 </head>
+
 <body>
-Name: {{ name }}
-<img src={{ profile_pic_url }}>
-<hr>
-<a href="{% url 'index' %}"> To Home Page</a>
+    <div class="container">
+        <div class="row" style="background-color: #2b3660;color: rgb(255,255,255);font-family: ABeeZee, sans-serif;">
+            <div class="col">
+                <h1 class="text-center">Almost Finished!</h1>
+            </div>
+        </div>
+        <div class="row justify-content-center" style="margin: 0px;margin-top: 30px;">
+            <div class="col-xl-5">
+                <h5 class="text-center">Please provide us with your LinkedIn profile URL so that others can connect with you easily</h5>
+            </div>
+        </div>
+        <form class="text-center" action="{% url 'redirect' %}" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="id" value={{ id }}>
+            <div class="form-group">
+                <div class="form-row justify-content-center align-items-end">
+                    <div class="col-xl-6">{{ form.profile_url }}</div>
+                </div>
+                <div class="form-row">
+                    <div class="col-xl-3 offset-xl-3"><small class="form-text text-muted">Find out your LinkedIn profile URL<a data-toggle="tooltip" data-bs-tooltip="" data-placement="right" target="_blank" href="https://www.linkedin.com/public-profile/settings?trk=d_flagship3_profile_self_view_public_profile" title="Click here to get your profile URL easily">&nbsp;here.</a></small></div>
+                </div>
+            </div><button class="btn btn-secondary" type="submit" style="background-color: #2b3660;width: 130px;font-family: ABeeZee, sans-serif;">Finish</button></form>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
+    {% load static %}
+    <script src="{% static 'LinkedInAuth/js/script.min.js' %}"></script>
 </body>
+
 </html>
