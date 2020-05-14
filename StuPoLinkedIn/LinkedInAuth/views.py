@@ -7,6 +7,7 @@ import os
 import string
 import random
 from django.http import HttpResponse
+from .auth import app_auth, user_auth
 # Create your views here.
 state=""
 
@@ -16,30 +17,6 @@ def index(request):
         'users': users,
     }
     return render(request,'LinkedInAuth/index.html',context=context)
-
-def authorize(request):
-    dir_name = os.path.dirname( __file__ )
-    path = os.path.join( dir_name, '../../config.json' )
-    f = open( path )
-    private_data = json.load( f )
-    client_id = private_data['client_id']
-    client_secret = private_data['client_secret']
-    redirect_uri = 'http://127.0.0.1:8000/auth/linkedin'
-    auth_base_url = 'https://www.linkedin.com/oauth/v2/authorization'
-    global state
-    state=str(get_token(request))
-    parameters = {
-        'response_type' : 'code',
-        'client_id' : client_id,
-        'redirect_uri' : redirect_uri,
-        'scope' : 'r_liteprofile r_emailaddress',
-        'state' : state,
-
-    }
-    auth_initial=requests.get(auth_base_url,parameters)
-    if str(auth_initial.status_code) == '200':
-        user_auth_link=auth_initial.url
-    return redirect(user_auth_link)
 
 def register(request):
     if request.POST:
@@ -60,34 +37,29 @@ def register(request):
             'form' : form,
         })
 
+def authorize(request):
+    dir_name = os.path.dirname( __file__ )
+    path = os.path.join( dir_name, '../../config.json' )
+    f = open( path )
+    data = json.load( f )
+    data['redirect_uri'] = 'http://127.0.0.1:8000/auth/linkedin'
+    global state
+    state = str(get_token(request))
+    user_auth_link = app_auth(data,state)
+    return redirect(user_auth_link)
+
 def auth_redirect(request):
     dir_name = os.path.dirname( __file__ )
     path = os.path.join( dir_name, '../../config.json' )
     f = open( path )
-    private_data = json.load( f )
-    client_id = private_data['client_id']
-    client_secret = private_data['client_secret']
-    redirect_uri = 'http://127.0.0.1:8000/auth/linkedin'
-    if request.GET:
-        code=request.GET.get('code','')
-        returned_state=str(request.GET.get('state',''))
-        global state
-        if state==returned_state:
-            params={
-                'grant_type': 'authorization_code',
-                'code': code,
-                'redirect_uri': redirect_uri,
-                'client_id': client_id,
-                'client_secret': client_secret,
-                'Content-Type': 'x-www-form-urlencoded',
-            }
+    data = json.load( f )
+    data['redirect_uri'] = 'http://127.0.0.1:8000/auth/linkedin'
+    auth_info = user_auth(data,request,state)
 
-            auth_second=requests.post('https://www.linkedin.com/oauth/v2/accessToken',params)
-            access_token = auth_second.json()['access_token']
+    if auth_info['auth']==True: # If it is an authorization call
 
-            # API Authorization Done.
-            # ------------------------------------------------------------------------------------------------------------------
-            # API Lookups
+        if auth_info['success']==True:
+            access_token=auth_info['access_token']
 
             #    Id,Name and Profile Pic Lookup
             params = {
@@ -112,10 +84,10 @@ def auth_redirect(request):
 
             content_json = content.json()
             email_address=content_json['elements'][0]['handle~']['emailAddress']
+
             user= User(first_name=first_name,last_name=last_name,profile_pic_url=profile_pic_url,id=id,email=email_address)
             user.save()
-            #user.save_image_from_url()
-            #user.save()
+
             form = ProfileURLForm
             return render( request, 'LinkedInAuth/redirect.html', {'name' : first_name + " " + last_name,
                                                                    'profile_pic_url' : profile_pic_url,
@@ -125,8 +97,10 @@ def auth_redirect(request):
                                                                    'form' : form
                                                                    } )
         else:
-            return HttpResponse('There was an error')
-    elif request.POST:
+                return HttpResponse('There was an error')
+
+    elif auth_info['auth']==False: # If it is the profile url form call
+
         id = request.POST.get( 'id' )
         user = User.objects.get( id=id )
         profile_form = ProfileURLForm( request.POST, instance=user )
