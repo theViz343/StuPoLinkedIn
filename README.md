@@ -3,7 +3,7 @@
 LinkedIn Integration for StuPo  
 A simple app to show LinkedIn API functionality.  
 
-#####To run this project,
+#### To run this project,
 
 1. Clone this repository on your system.
 2. Run `setup.sh` ( first make it executable).
