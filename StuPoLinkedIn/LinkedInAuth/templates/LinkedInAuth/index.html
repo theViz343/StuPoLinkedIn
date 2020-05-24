@@ -19,13 +19,13 @@
         {% for user in users %}
         <div class="row no-gutters row-cols-sm-2 row-cols-md-2 row-cols-lg-2 row-cols-xl-2 justify-content-center align-items-center" style="margin-top: 10px;">
             <div class="col-7 col-sm-4 col-md-3 col-lg-2 col-xl-2" style="border-width: thick;border-width: 10px;border-color: #2867b2;">
-                <a target="_blank" href={{ user.profile_url }} style="color: rgb(246,250,255);">
-                    <img class="img-fluid shadow-sm" src={{ user.profile_pic_url }} width="200" height="200" style="border-width: 10px;border: 10px solid #2b3660;border-radius: 20px;/*border-color: #2b3660;*/">
+                <a target="_blank" href={{ user.linkedindetails.profile_url }} style="color: rgb(246,250,255);">
+                    <img class="img-fluid shadow-sm" src={{ user.linkedindetails.image_url }} width="200" height="200" style="border-width: 10px;border: 10px solid #2b3660;border-radius: 20px;/*border-color: #2b3660;*/">
 
                 </a></div>
             <div
                 class="col-lg-3 col-xl-3 align-self-center">
-                <a target="_blank" href={{ user.profile_url }}>
+                <a target="_blank" href={{ user.linkedindetails.profile_url }}>
                     <h2 class="text-center" style="color: #2867B2;">{{ user.first_name }} {{ user.last_name }}</h2>
                 </a>
                 <h6 class="text-center text-secondary">{{ user.email }}</h6>

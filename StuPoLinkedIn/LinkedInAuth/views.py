@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.middleware.csrf import get_token
 import requests
-from .models import User, ProfileURLForm, UserForm
+from .models import User,LinkedInDetails, ProfileURLForm, UserForm
 import json
 import os
 import string
@@ -55,7 +55,7 @@ def auth_redirect(request):
     data = json.load( f )
     data['redirect_uri'] = 'http://127.0.0.1:8000/auth/linkedin'
     auth_info = user_auth(data,request,state)
-
+    print(auth_info)
     if auth_info['auth']==True: # If it is an authorization call
 
         if auth_info['success']==True:
@@ -85,8 +85,10 @@ def auth_redirect(request):
             content_json = content.json()
             email_address=content_json['elements'][0]['handle~']['emailAddress']
 
-            user= User(first_name=first_name,last_name=last_name,profile_pic_url=profile_pic_url,id=id,email=email_address)
+            user = User( first_name=first_name, last_name=last_name )
             user.save()
+            details = LinkedInDetails(user=user, linkedin_id=id, image_url=profile_pic_url)
+            details.save()
 
             form = ProfileURLForm
             return render( request, 'LinkedInAuth/redirect.html', {'name' : first_name + " " + last_name,
@@ -102,10 +104,10 @@ def auth_redirect(request):
     elif auth_info['auth']==False: # If it is the profile url form call
 
         id = request.POST.get( 'id' )
-        user = User.objects.get( id=id )
-        profile_form = ProfileURLForm( request.POST, instance=user )
+        details = LinkedInDetails.objects.get(linkedin_id=id)
+        profile_form = ProfileURLForm( request.POST, instance= details )
         if profile_form.is_valid() :
             profile_form.save()
-            user.correct_profile_url()
-            user.save()
+            details.correct_profile_url()
+            details.save()
             return redirect( 'index' )
