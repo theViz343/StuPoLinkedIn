@@ -2,7 +2,7 @@
 echo "Please wait...."
 python3 -m venv venv1
 source venv1/bin/activate
-pip3 freeze > requirements.txt
+pip3 install -r requirements.txt
 deactivate
 cat <<EOF > config.json
 {
