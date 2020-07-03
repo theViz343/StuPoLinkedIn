@@ -29,7 +29,6 @@ def user_auth(data,request,csrf_token):
         'auth': False,
         'access_token' : "",
     }
-    print("Inside func")
     if request.GET:
         auth_info['auth'] = True
         code=request.GET.get('code','')
