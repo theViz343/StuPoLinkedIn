@@ -10,7 +10,7 @@ from django.http import HttpResponse
 from .auth import app_auth, user_auth
 # Create your views here.
 state=""
-
+p_id=0
 def index(request):
     users=User.objects.all()
     context={
@@ -18,6 +18,14 @@ def index(request):
     }
     return render(request,'LinkedInAuth/index.html',context=context)
 
+def profile(request, profile_id):
+    user = User.objects.get(id=profile_id)
+    global p_id
+    p_id=profile_id
+    context = {
+        'user': user,
+    }
+    return render( request, 'LinkedInAuth/profile.html', context=context )
 def register(request):
     if request.POST:
         random_id = ''.join( random.choices( string.ascii_uppercase + string.ascii_lowercase + string.digits, k=10 ) )
