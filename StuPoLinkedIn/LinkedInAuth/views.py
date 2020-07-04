@@ -10,7 +10,6 @@ from django.http import HttpResponse
 from .auth import app_auth, user_auth
 # Create your views here.
 state=""
-p_id=0
 def index(request):
     users=User.objects.all()
     context={
@@ -20,8 +19,7 @@ def index(request):
 
 def profile(request, profile_id):
     user = User.objects.get(id=profile_id)
-    global p_id
-    p_id=profile_id
+    request.session['profile_id']=profile_id
     context = {
         'user': user,
     }
@@ -93,9 +91,8 @@ def auth_redirect(request):
             content_json = content.json()
             email_address=content_json['elements'][0]['handle~']['emailAddress']
 
-            user = User( first_name=first_name, last_name=last_name )
-            user.save()
-            details = LinkedInDetails(user=user, linkedin_id=id, image_url=profile_pic_url)
+            user = User.objects.get(pk=request.session['profile_id'])
+            details = LinkedInDetails(user=user, linkedin_id=id, image_url=profile_pic_url, email_address=email_address)
             details.save()
 
             form = ProfileURLForm
@@ -107,7 +104,7 @@ def auth_redirect(request):
                                                                    'form' : form
                                                                    } )
         else:
-                return HttpResponse('There was an error')
+                return redirect('profile',request.session['profile_id'])
 
     elif auth_info['auth']==False: # If it is the profile url form call
 

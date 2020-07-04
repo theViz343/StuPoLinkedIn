@@ -23,12 +23,15 @@ class User( models.Model ) :
 
     def __str__(self) :
         return self.first_name + " " + self.last_name
+    def details_exist(self):
+        return hasattr(self,'linkedindetails')
 
 class LinkedInDetails( models.Model ) :
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     linkedin_id = models.CharField( verbose_name='LinkedIn Id', primary_key=True, max_length=20, default='initial' )
     image_url = models.CharField( verbose_name='Profile Picture URL', max_length=200 )
     profile_url = models.CharField( verbose_name='LinkedIn Profile URL', default='', max_length=100 )
+    email_address = models.EmailField( verbose_name='Email Address',default='')
 
     def __str__(self):
         return str(self.user) + "'s details"
